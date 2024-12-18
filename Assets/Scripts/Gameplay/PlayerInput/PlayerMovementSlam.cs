@@ -13,7 +13,7 @@ namespace Scripts.Gameplay.PlayerInput
         protected void FixedUpdate()
         {
             var desiredVelocity = this.GetMoveInput() * this.maxSpeed;
-            var currentVelocity = this.cachedRigidbody2D.velocity;
+            var currentVelocity = this.cachedRigidbody2D.linearVelocity;
             var desiredDeltaVelocity = desiredVelocity - currentVelocity;
 
             var maxDeltaSpeedPerFrame = this.maxAcceleration * Time.fixedDeltaTime;
