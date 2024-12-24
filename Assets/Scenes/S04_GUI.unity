@@ -1615,6 +1615,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3420228071165587080, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
+      propertyPath: Loop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3420228071165587080, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3420228071165587080, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3420228071165587080, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
+      propertyPath: BypassEffects
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5987510145482094004, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
       propertyPath: m_Name
       value: SpaceshipWithMouseLookSlam
@@ -1623,6 +1639,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6361210928453816926, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
+      propertyPath: prefabSpawnMe
+      value: 
+      objectReference: {fileID: 1007558716680083855, guid: 0e11ac85bb52f9641a6a4fe7e75e7824, type: 3}
     - target: {fileID: 8011001356982391782, guid: 1dd4d6a198a2aa7459f0d5237dc458d7, type: 3}
       propertyPath: m_text
       value: 'Mouse
