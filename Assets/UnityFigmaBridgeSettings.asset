@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 119c1bd3601648f28a252a6030e067b6, type: 3}
   m_Name: UnityFigmaBridgeSettings
   m_EditorClassIdentifier: 
-  DocumentUrl: https://www.figma.com/design/YBMXhr7PrxaGqO6wspoGfY/Rise-of-the-Maestro?node-id=0-1&p=f&t=UEucBiN72IGnDCQO-0
+  DocumentUrl: https://www.figma.com/design/YBMXhr7PrxaGqO6wspoGfY/Rise-of-the-Maestro?node-id=0-1&p=f&t=xZYNohwJFVkakoiH-0
   BuildPrototypeFlow: 1
   RunTimeAssetsScenePath: 
   EnableAutoLayout: 0
