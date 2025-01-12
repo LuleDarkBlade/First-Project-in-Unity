@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b3f691ac12b60284ab91ad2adc8b9739
+timeCreated: 1509459035
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103856
+  packageName: Tennis Essentials - PBR
+  packageVersion: 1.1
+  assetPath: Assets/Tennis Essentials/Assets/Prefabs/Court/Grass Court.prefab
+  uploadId: 229976

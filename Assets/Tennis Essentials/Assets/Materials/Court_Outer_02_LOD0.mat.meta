@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 91f05b416b02db34b80a87dd78407510
+timeCreated: 1509386155
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103856
+  packageName: Tennis Essentials - PBR
+  packageVersion: 1.1
+  assetPath: Assets/Tennis Essentials/Assets/Materials/Court_Outer_02_LOD0.mat
+  uploadId: 229976

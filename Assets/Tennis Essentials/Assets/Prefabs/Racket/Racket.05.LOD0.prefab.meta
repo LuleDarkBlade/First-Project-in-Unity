@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f5b2b7cbb84290145855ea3eb3344139
+timeCreated: 1509457161
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103856
+  packageName: Tennis Essentials - PBR
+  packageVersion: 1.1
+  assetPath: Assets/Tennis Essentials/Assets/Prefabs/Racket/Racket.05.LOD0.prefab
+  uploadId: 229976
