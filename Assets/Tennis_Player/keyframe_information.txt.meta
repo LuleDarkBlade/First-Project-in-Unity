@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 275a27c979ccd21468ea0695446788d4
+timeCreated: 1480516741
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 77300
+  packageName: Male Tennis Player
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Player/keyframe_information.txt
+  uploadId: 227576

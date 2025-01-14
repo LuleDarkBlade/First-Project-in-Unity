@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4fd3375b3a8e7784a83c04158100c314
+timeCreated: 1483346301
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 77300
+  packageName: Male Tennis Player
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Player/Demo_Scene/tennis_player_demo_scene.unity
+  uploadId: 227576

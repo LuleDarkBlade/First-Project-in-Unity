@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5dfa53aeefbd07542bed5111d373531f
+timeCreated: 1483348037
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 77300
+  packageName: Male Tennis Player
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Player/Demo_Scene/Materials/character.mat
+  uploadId: 227576

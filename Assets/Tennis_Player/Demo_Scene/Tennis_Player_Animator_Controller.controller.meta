@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5666e9668f67493429c11150d3307fba
+timeCreated: 1483347302
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 77300
+  packageName: Male Tennis Player
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Player/Demo_Scene/Tennis_Player_Animator_Controller.controller
+  uploadId: 227576

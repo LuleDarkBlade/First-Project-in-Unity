@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3e261aedce9956641987ae11978e40bd
+timeCreated: 1480501074
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 77300
+  packageName: Male Tennis Player
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Player/Materials/racket.mat
+  uploadId: 227576
