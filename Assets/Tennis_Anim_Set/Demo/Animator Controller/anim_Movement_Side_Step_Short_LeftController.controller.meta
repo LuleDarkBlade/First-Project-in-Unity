@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: eaa08c769db53e44c9d3212e8a0ee6de
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Movement_Side_Step_Short_LeftController.controller
+  uploadId: 710399

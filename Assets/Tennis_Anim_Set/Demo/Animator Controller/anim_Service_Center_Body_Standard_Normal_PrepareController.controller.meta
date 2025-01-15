@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1b5ecfafdbed86244a851dae1dae3217
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Service_Center_Body_Standard_Normal_PrepareController.controller
+  uploadId: 710399

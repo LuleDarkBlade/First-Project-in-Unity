@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ae5e5c54af55f684499e27c56b8c109c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Movement_Idle_Close_To_NetController.controller
+  uploadId: 710399

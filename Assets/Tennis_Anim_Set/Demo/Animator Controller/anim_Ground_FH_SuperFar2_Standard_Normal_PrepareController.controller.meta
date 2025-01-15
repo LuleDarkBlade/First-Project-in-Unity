@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e48ac97c6c0b9f949a4fe3f236fbd807
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Ground_FH_SuperFar2_Standard_Normal_PrepareController.controller
+  uploadId: 710399

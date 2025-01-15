@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fb778a9177dcc9145af90b2cd88e0eb6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Emote_GiveUp_FHController.controller
+  uploadId: 710399

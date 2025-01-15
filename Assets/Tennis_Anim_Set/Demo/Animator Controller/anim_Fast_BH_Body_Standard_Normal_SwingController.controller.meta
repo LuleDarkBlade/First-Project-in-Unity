@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0ab3d3fad6e3b964b9d6af543288ee59
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Fast_BH_Body_Standard_Normal_SwingController.controller
+  uploadId: 710399

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d98d1a5a3e1892b49bb5613d488adec5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Ground_FH_Opt_Weak_Normal_SwingController.controller
+  uploadId: 710399

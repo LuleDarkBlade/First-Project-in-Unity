@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6ae1c318c2dbdf84e9a64f12e08e596b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303114
+  packageName: Tennis Anim Set
+  packageVersion: 1.0
+  assetPath: Assets/Tennis_Anim_Set/Demo/Animator Controller/anim_Smash_FH_Body_Standard_Normal_SwingController.controller
+  uploadId: 710399
