@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
         inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
         // 2) Calculate speed for animation
-        float currentSpeed = new Vector3(rb.velocity.x, 0f, rb.velocity.z).magnitude;
+        float currentSpeed = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).magnitude;
         animator.SetFloat("Speed", currentSpeed);
 
         // 3) Face movement direction
@@ -41,13 +41,15 @@ public class PlayerController : MonoBehaviour
         // 4) Shot input
         if (Input.GetButtonDown("Fire1")) // e.g., left Ctrl or mouse button
         {
-            animator.SetTrigger("Forehand");
+            animator.SetTrigger("ForehandTrigger");
             HitBall(); // We'll define the logic below
+            Debug.Log("Pressed Fire1, set ForehandTrigger");
         }
         else if (Input.GetButtonDown("Fire2")) // e.g., right Alt or second mouse button
         {
-            animator.SetTrigger("Forehand Strafe");
+            animator.SetTrigger("ForehandStrafeTrigger");
             HitBall();
+            Debug.Log("Pressed Fire2, set ForehandStrafeTrigger");
         }
     }
 
@@ -55,7 +57,7 @@ public class PlayerController : MonoBehaviour
     {
         // Move the player
         Vector3 velocity = inputDirection * moveSpeed;
-        rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
+        rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
     }
 
     private void HitBall()
@@ -71,7 +73,7 @@ public class PlayerController : MonoBehaviour
                 {
                     Vector3 shotDir = (transform.forward + Vector3.up * 0.3f).normalized;
                     float shotPower = 10f;
-                    ballRb.velocity = shotDir * shotPower;
+                    ballRb.linearVelocity = shotDir * shotPower;
                 }
             }
         }
