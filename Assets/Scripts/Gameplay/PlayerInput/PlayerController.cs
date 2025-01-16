@@ -1,81 +1,237 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody), typeof(Animator))]
+[RequireComponent(typeof(Animator), typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 720f;
+    [SerializeField] private float rotationSpeed = 360f;
 
-    private Rigidbody rb;
+    [Header("Ball / Left Hand Setup")]
+    [Tooltip("Your tennis ball prefab (Rigidbody+SphereCollider).")]
+    public GameObject tennisBallPrefab;
+
+    [Tooltip("Child transform on the left hand bone for ball spawn/holding.")]
+    public Transform leftHandTip;
+
+    // references
     private Animator animator;
-    private Vector3 inputDirection;
+    private Rigidbody rb;
+    private Vector3 inputDir;
+
+    // We'll store the currently spawned ball + rigidbody
+    private GameObject currentBall;
+    private Rigidbody currentBallRb;
+
+    // Serve phase logic:
+    private int servePhase = 0; // 0 = ready, 1 = ball tap, 2 = prep, 3 = swing
+
+    // Animator params/triggers
+    private static readonly int SpeedParam = Animator.StringToHash("Speed");
+    private static readonly int ServiceBallTapTrigger = Animator.StringToHash("ServiceBallTapTrigger");
+    private static readonly int ServicePrepTrigger = Animator.StringToHash("ServicePrepTrigger");
+    private static readonly int ServiceSwingTrigger = Animator.StringToHash("ServiceSwingTrigger");
+
+    private static readonly int IsForehandPrepBool = Animator.StringToHash("IsForehandPrep");
+    private static readonly int ForehandSwingTrigger = Animator.StringToHash("ForehandSwingTrigger");
+    private static readonly int IsBackhandPrepBool = Animator.StringToHash("IsBackhandPrep");
+    private static readonly int BackhandSwingTrigger = Animator.StringToHash("BackhandSwingTrigger");
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
 
-        // Prevent physics from rotating the player unexpectedly
+        // Freeze rotation so player won't topple over with physics
         rb.freezeRotation = true;
     }
 
     private void Update()
     {
-        // 1) Movement input
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
+        // ============== MOVEMENT ==============
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        inputDir = new Vector3(h, 0f, v).normalized;
 
-        // 2) Calculate speed for animation
-        float currentSpeed = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).magnitude;
-        animator.SetFloat("Speed", currentSpeed);
+        float currentSpeed = inputDir.magnitude * moveSpeed;
+        animator.SetFloat(SpeedParam, currentSpeed);
 
-        // 3) Face movement direction
-        if (inputDirection.sqrMagnitude > 0.01f)
+        // Rotate toward input direction
+        if (inputDir.sqrMagnitude > 0.01f)
         {
-            Quaternion targetRot = Quaternion.LookRotation(inputDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
+            Quaternion targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                targetRot,
+                rotationSpeed * Time.deltaTime
+            );
         }
 
-        // 4) Shot input
-        if (Input.GetButtonDown("Fire1")) // e.g., left Ctrl or mouse button
+        // ============ SERVICE SEQUENCE ============
+
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            animator.SetTrigger("ForehandTrigger");
-            HitBall(); // We'll define the logic below
-            Debug.Log("Pressed Fire1, set ForehandTrigger");
+            if (servePhase == 0)
+            {
+                servePhase = 1;
+                Debug.Log("F Press #1 => ServiceBallTap");
+                animator.SetTrigger(ServiceBallTapTrigger);
+            }
+            else if (servePhase == 1)
+            {
+                servePhase = 2;
+                Debug.Log("F Press #2 => ServicePrep");
+                animator.SetTrigger(ServicePrepTrigger);
+            }
+            else if (servePhase == 2)
+            {
+                servePhase = 3;
+                Debug.Log("F Press #3 => ServiceSwing");
+                animator.SetTrigger(ServiceSwingTrigger);
+
+                // Reset movement input after serving
+                inputDir = Vector3.zero;
+            }
+            else
+            {
+                Debug.Log("Serve complete. Resetting for next serve.");
+                servePhase = 0;
+            }
         }
-        else if (Input.GetButtonDown("Fire2")) // e.g., right Alt or second mouse button
+
+        // ============ FOREHAND (Fire1) ============
+        if (Input.GetButtonDown("Fire1"))
         {
-            animator.SetTrigger("ForehandStrafeTrigger");
-            HitBall();
-            Debug.Log("Pressed Fire2, set ForehandStrafeTrigger");
+            Debug.Log("Fire1 pressed => ForehandPrep ON");
+            animator.SetBool(IsForehandPrepBool, true);
+        }
+        if (Input.GetButtonUp("Fire1"))
+        {
+            Debug.Log("Fire1 released => ForehandSwing triggered");
+            animator.SetBool(IsForehandPrepBool, false);
+            animator.SetTrigger(ForehandSwingTrigger);
+        }
+
+        // ============ BACKHAND (Fire2) ============
+        if (Input.GetButtonDown("Fire2"))
+        {
+            Debug.Log("Fire2 pressed => BackhandPrep ON");
+            animator.SetBool(IsBackhandPrepBool, true);
+        }
+        if (Input.GetButtonUp("Fire2"))
+        {
+            Debug.Log("Fire2 released => BackhandSwing triggered");
+            animator.SetBool(IsBackhandPrepBool, false);
+            animator.SetTrigger(BackhandSwingTrigger);
         }
     }
 
     private void FixedUpdate()
     {
-        // Move the player
-        Vector3 velocity = inputDirection * moveSpeed;
+        Vector3 velocity = inputDir * moveSpeed;
         rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
     }
 
-    private void HitBall()
+    // =======================================================================================
+    // ServiceBallTap clip event => spawn the ball in left hand (only once)
+    // =======================================================================================
+    public void SpawnBallAtLeftHand()
     {
-        // Very simple approach: find the ball close to the player and apply force.
-        Collider[] hits = Physics.OverlapSphere(transform.position, 1f);
-        foreach (var h in hits)
+        if (currentBall != null)
         {
-            if (h.CompareTag("TennisBall"))
-            {
-                Rigidbody ballRb = h.GetComponent<Rigidbody>();
-                if (ballRb != null)
-                {
-                    Vector3 shotDir = (transform.forward + Vector3.up * 0.3f).normalized;
-                    float shotPower = 10f;
-                    ballRb.linearVelocity = shotDir * shotPower;
-                }
-            }
+            Debug.LogWarning("Ball already spawned. Skipping spawn.");
+            return;
         }
+
+        if (tennisBallPrefab == null || leftHandTip == null)
+        {
+            Debug.LogWarning("Missing tennisBallPrefab or leftHandTip!");
+            return;
+        }
+
+        currentBall = Instantiate(tennisBallPrefab, leftHandTip.position, leftHandTip.rotation);
+        currentBallRb = currentBall.GetComponent<Rigidbody>();
+
+        currentBall.transform.SetParent(leftHandTip);
+        currentBallRb.isKinematic = true;
+
+        Debug.Log("Spawned ball in left hand (ServiceBallTap).");
+    }
+
+    // =======================================================================================
+    // ServicePrep clip event => throw the ball up
+    // =======================================================================================
+    public void ThrowBallUp()
+    {
+        if (currentBall == null || currentBallRb == null)
+        {
+            Debug.LogWarning("No ball to throw up!");
+            return;
+        }
+
+        currentBall.transform.SetParent(null);
+        currentBallRb.isKinematic = false;
+
+        Vector3 throwDir = Vector3.up;
+        float throwForce = 8f;
+        currentBallRb.linearVelocity = throwDir * throwForce;
+
+        Debug.Log("Ball thrown upward (ServicePrep).");
+    }
+
+    // =======================================================================================
+    // ServiceSwing clip event => final forward strike
+    // =======================================================================================
+    public void ApplyServiceHit()
+    {
+        if (currentBall == null || currentBallRb == null)
+        {
+            Debug.LogWarning("No ball to service-hit!");
+            return;
+        }
+
+        currentBallRb.isKinematic = false;
+
+        Vector3 serviceDir = (transform.forward + Vector3.up * 0.3f).normalized;
+        float serviceForce = 12f;
+        currentBallRb.linearVelocity = serviceDir * serviceForce;
+
+        Debug.Log("Service swing applied => ball launched forward!");
+    }
+
+    // =======================================================================================
+    // ForehandSwing clip event => normal forehand contact
+    // =======================================================================================
+    public void ApplyForehandHit()
+    {
+        if (currentBall == null || currentBallRb == null)
+        {
+            Debug.LogWarning("No ball for ForehandHit!");
+            return;
+        }
+
+        Vector3 forehandDir = transform.forward;
+        float forehandForce = 10f;
+        currentBallRb.linearVelocity = forehandDir * forehandForce;
+
+        Debug.Log("Forehand contact => launched ball forward!");
+    }
+
+    // =======================================================================================
+    // BackhandSwing clip event => normal backhand contact
+    // =======================================================================================
+    public void ApplyBackhandHit()
+    {
+        if (currentBall == null || currentBallRb == null)
+        {
+            Debug.LogWarning("No ball for BackhandHit!");
+            return;
+        }
+
+        Vector3 backhandDir = transform.forward;
+        float backhandForce = 9f;
+        currentBallRb.linearVelocity = backhandDir * backhandForce;
+
+        Debug.Log("Backhand contact => launched ball forward!");
     }
 }
