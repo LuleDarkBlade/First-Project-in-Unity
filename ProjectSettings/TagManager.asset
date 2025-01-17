@@ -6,6 +6,7 @@ TagManager:
   tags:
   - UFO Area
   - TennisBall
+  - Net
   layers:
   - Default
   - TransparentFX
@@ -15,8 +16,8 @@ TagManager:
   - UI
   - PlayerBody
   - Racket
-  - 
-  - 
+  - courtLayer
+  - opponentCourtLayer
   - Player
   - Wall
   - Ball
@@ -26,7 +27,7 @@ TagManager:
   - Enemy
   - PlayerProjectile
   - EnemyProjectile
-  - 
+  - PlayerCourt
   - 
   - 
   - 

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2838fdea773853049aeef4ee889ff186
+timeCreated: 1492624650
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 66244
+  packageName: Tennis Stadium
+  packageVersion: 1.1
+  assetPath: Assets/Tennis/Art_assets/Materials/Tennis_ground.mat
+  uploadId: 235852

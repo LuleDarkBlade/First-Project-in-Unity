@@ -437,7 +437,7 @@ public partial class @MyPlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Click"",
-                    ""type"": ""Value"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""593a994a-f833-495b-a0ad-c267f5b52b41"",
                     ""expectedControlType"": """",
                     ""processors"": """",
@@ -919,7 +919,7 @@ public partial class @MyPlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""Restart"",
                     ""type"": ""Button"",
                     ""id"": ""fa82b79f-4ee8-4091-83f9-e2b8e984d964"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false

@@ -14,24 +14,48 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Child transform on the left hand bone for ball spawn/holding.")]
     public Transform leftHandTip;
 
-    // references
+    [Header("Aiming Settings")]
+    [Tooltip("LayerMask for the opponent's court.")]
+    public LayerMask opponentCourtLayer;
+
+    [Tooltip("Max raycast distance for aiming.")]
+    public float maxAimDistance = 50f;
+
+    [Header("Timing Settings")]
+    [Tooltip("Force adjustment for perfect timing.")]
+    public float perfectTimingMultiplier = 1.2f;
+
+    [Tooltip("Force adjustment for normal timing.")]
+    public float normalTimingMultiplier = 1f;
+
+    [Tooltip("Force adjustment for bad timing.")]
+    public float badTimingMultiplier = 0.8f;
+
+    [Header("Gizmo Settings")]
+    [Tooltip("Offset for the timing feedback gizmo.")]
+    public Vector3 gizmoOffset = new Vector3(0f, 1.5f, 0f);
+
+    [Tooltip("Radius for timing feedback circles.")]
+    public float gizmoRadius = 0.3f;
+
+    // References
     private Animator animator;
     private Rigidbody rb;
     private Vector3 inputDir;
 
-    // We'll store the currently spawned ball + rigidbody
     private GameObject currentBall;
     private Rigidbody currentBallRb;
 
-    // Serve phase logic:
     private int servePhase = 0; // 0 = ready, 1 = ball tap, 2 = prep, 3 = swing
+    private bool ballHasSpawned = false; // Ensure ball spawns only once
+    private Vector3 aimDirection = Vector3.forward; // Default hit direction
+    private string currentTimingFeedback = "Normal"; // Default timing feedback
 
-    // Animator params/triggers
+    // Animator parameters
     private static readonly int SpeedParam = Animator.StringToHash("Speed");
     private static readonly int ServiceBallTapTrigger = Animator.StringToHash("ServiceBallTapTrigger");
     private static readonly int ServicePrepTrigger = Animator.StringToHash("ServicePrepTrigger");
     private static readonly int ServiceSwingTrigger = Animator.StringToHash("ServiceSwingTrigger");
-
     private static readonly int IsForehandPrepBool = Animator.StringToHash("IsForehandPrep");
     private static readonly int ForehandSwingTrigger = Animator.StringToHash("ForehandSwingTrigger");
     private static readonly int IsBackhandPrepBool = Animator.StringToHash("IsBackhandPrep");
@@ -41,34 +65,15 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-
-        // Freeze rotation so player won't topple over with physics
-        rb.freezeRotation = true;
+        rb.freezeRotation = true; // Freeze rotation to prevent physics wobble
     }
 
     private void Update()
     {
-        // ============== MOVEMENT ==============
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-        inputDir = new Vector3(h, 0f, v).normalized;
-
-        float currentSpeed = inputDir.magnitude * moveSpeed;
-        animator.SetFloat(SpeedParam, currentSpeed);
-
-        // Rotate toward input direction
-        if (inputDir.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation,
-                targetRot,
-                rotationSpeed * Time.deltaTime
-            );
-        }
+        HandleMovement();
+        HandleAiming();
 
         // ============ SERVICE SEQUENCE ============
-
         if (Input.GetKeyDown(KeyCode.F))
         {
             if (servePhase == 0)
@@ -89,13 +94,13 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("F Press #3 => ServiceSwing");
                 animator.SetTrigger(ServiceSwingTrigger);
 
-                // Reset movement input after serving
-                inputDir = Vector3.zero;
+                inputDir = Vector3.zero; // Reset movement input after serve
             }
             else
             {
                 Debug.Log("Serve complete. Resetting for next serve.");
                 servePhase = 0;
+                ballHasSpawned = false; // Reset ball spawn logic
             }
         }
 
@@ -110,6 +115,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Fire1 released => ForehandSwing triggered");
             animator.SetBool(IsForehandPrepBool, false);
             animator.SetTrigger(ForehandSwingTrigger);
+            ApplyForehandHit(CalculateTiming());
         }
 
         // ============ BACKHAND (Fire2) ============
@@ -123,6 +129,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Fire2 released => BackhandSwing triggered");
             animator.SetBool(IsBackhandPrepBool, false);
             animator.SetTrigger(BackhandSwingTrigger);
+            ApplyBackhandHit(CalculateTiming());
         }
     }
 
@@ -132,16 +139,38 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
     }
 
-    // =======================================================================================
-    // ServiceBallTap clip event => spawn the ball in left hand (only once)
-    // =======================================================================================
+    // ================= MOVEMENT =================
+    private void HandleMovement()
+    {
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        inputDir = new Vector3(h, 0f, v).normalized;
+
+        float currentSpeed = inputDir.magnitude * moveSpeed;
+        animator.SetFloat(SpeedParam, currentSpeed);
+
+        if (inputDir.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
+        }
+    }
+
+    // ================= AIMING =================
+    private void HandleAiming()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance, opponentCourtLayer))
+        {
+            Vector3 targetPoint = hit.point;
+            aimDirection = (targetPoint - transform.position).normalized;
+            Debug.DrawLine(transform.position, targetPoint, Color.red); // Visualize aiming direction
+        }
+    }// ================= SERVICE EVENTS =================
     public void SpawnBallAtLeftHand()
     {
-        if (currentBall != null)
-        {
-            Debug.LogWarning("Ball already spawned. Skipping spawn.");
-            return;
-        }
+        if (ballHasSpawned) return;
 
         if (tennisBallPrefab == null || leftHandTip == null)
         {
@@ -155,12 +184,40 @@ public class PlayerController : MonoBehaviour
         currentBall.transform.SetParent(leftHandTip);
         currentBallRb.isKinematic = true;
 
+        ballHasSpawned = true;
+
         Debug.Log("Spawned ball in left hand (ServiceBallTap).");
     }
 
-    // =======================================================================================
-    // ServicePrep clip event => throw the ball up
-    // =======================================================================================
+    public void DropAndBounceBall()
+    {
+        if (currentBall == null || currentBallRb == null) return;
+
+        currentBall.transform.SetParent(null);
+        currentBallRb.isKinematic = false;
+
+        Vector3 dropDir = Vector3.down;
+        float dropForce = 0.8f;
+        currentBallRb.linearVelocity = dropDir * dropForce;
+
+        Debug.Log("Ball dropped and bounced (ServiceBallTap).");
+    }
+
+    public void ResetBallToLeftHand()
+    {
+        if (currentBall == null || currentBallRb == null) return;
+
+        currentBallRb.linearVelocity = Vector3.zero;
+
+        currentBall.transform.SetParent(leftHandTip);
+        currentBall.transform.localPosition = Vector3.zero;
+        currentBall.transform.localRotation = Quaternion.identity;
+
+        currentBallRb.isKinematic = true;
+
+        Debug.Log("Ball reset to left hand.");
+    }
+
     public void ThrowBallUp()
     {
         if (currentBall == null || currentBallRb == null)
@@ -173,15 +230,35 @@ public class PlayerController : MonoBehaviour
         currentBallRb.isKinematic = false;
 
         Vector3 throwDir = Vector3.up;
-        float throwForce = 8f;
+        float throwForce = 12f;
         currentBallRb.linearVelocity = throwDir * throwForce;
 
         Debug.Log("Ball thrown upward (ServicePrep).");
     }
 
-    // =======================================================================================
-    // ServiceSwing clip event => final forward strike
-    // =======================================================================================
+    // ================= TIMING =================
+    private float CalculateTiming()
+    {
+        float randomTiming = Random.value; // Replace with real timing logic
+
+        if (randomTiming > 0.8f) // Perfect timing
+        {
+            currentTimingFeedback = "Perfect";
+            return perfectTimingMultiplier;
+        }
+        else if (randomTiming > 0.4f) // Normal timing
+        {
+            currentTimingFeedback = "Normal";
+            return normalTimingMultiplier;
+        }
+        else // Bad timing
+        {
+            currentTimingFeedback = "Bad";
+            return badTimingMultiplier;
+        }
+    }
+
+    // ================= SHOT EVENTS =================
     public void ApplyServiceHit()
     {
         if (currentBall == null || currentBallRb == null)
@@ -190,19 +267,14 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        currentBallRb.isKinematic = false;
+        Vector3 serviceDir = aimDirection + Vector3.up * 0.2f;
+        float serviceForce = 35f * CalculateTiming();
+        currentBallRb.linearVelocity = serviceDir.normalized * serviceForce;
 
-        Vector3 serviceDir = (transform.forward + Vector3.up * 0.3f).normalized;
-        float serviceForce = 12f;
-        currentBallRb.linearVelocity = serviceDir * serviceForce;
-
-        Debug.Log("Service swing applied => ball launched forward!");
+        Debug.Log("Service hit applied.");
     }
 
-    // =======================================================================================
-    // ForehandSwing clip event => normal forehand contact
-    // =======================================================================================
-    public void ApplyForehandHit()
+    public void ApplyForehandHit(float timingMultiplier)
     {
         if (currentBall == null || currentBallRb == null)
         {
@@ -210,17 +282,14 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector3 forehandDir = transform.forward;
-        float forehandForce = 10f;
-        currentBallRb.linearVelocity = forehandDir * forehandForce;
+        Vector3 forehandDir = aimDirection + Vector3.up * 0.1f;
+        float forehandForce = 25f * timingMultiplier;
+        currentBallRb.linearVelocity = forehandDir.normalized * forehandForce;
 
-        Debug.Log("Forehand contact => launched ball forward!");
+        Debug.Log("Forehand hit applied.");
     }
 
-    // =======================================================================================
-    // BackhandSwing clip event => normal backhand contact
-    // =======================================================================================
-    public void ApplyBackhandHit()
+    public void ApplyBackhandHit(float timingMultiplier)
     {
         if (currentBall == null || currentBallRb == null)
         {
@@ -228,10 +297,27 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector3 backhandDir = transform.forward;
-        float backhandForce = 9f;
-        currentBallRb.linearVelocity = backhandDir * backhandForce;
+        Vector3 backhandDir = aimDirection + Vector3.up * 0.1f;
+        float backhandForce = 25f * timingMultiplier;
+        currentBallRb.linearVelocity = backhandDir.normalized * backhandForce;
 
-        Debug.Log("Backhand contact => launched ball forward!");
+        Debug.Log("Backhand hit applied.");
+    }
+
+    // ================= GIZMOS =================
+    private void OnDrawGizmos()
+    {
+        if (Application.isPlaying)
+        {
+            Color timingColor = Color.yellow;
+
+            if (currentTimingFeedback == "Perfect")
+                timingColor = Color.green;
+            else if (currentTimingFeedback == "Bad")
+                timingColor = Color.red;
+
+            Gizmos.color = timingColor;
+            Gizmos.DrawSphere(transform.position + gizmoOffset, gizmoRadius);
+        }
     }
 }
