@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Animator), typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
@@ -31,12 +32,18 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Force adjustment for bad timing.")]
     public float badTimingMultiplier = 0.8f;
 
-    [Header("Gizmo Settings")]
-    [Tooltip("Offset for the timing feedback gizmo.")]
-    public Vector3 gizmoOffset = new Vector3(0f, 1.5f, 0f);
+    [Header("UI Feedback")]
+    [Tooltip("UI Text to display timing feedback.")]
+    public Text timingFeedbackText;
 
-    [Tooltip("Radius for timing feedback circles.")]
-    public float gizmoRadius = 0.3f;
+    [Tooltip("Color for perfect timing feedback.")]
+    public Color perfectTimingColor = Color.green;
+
+    [Tooltip("Color for normal timing feedback.")]
+    public Color normalTimingColor = Color.yellow;
+
+    [Tooltip("Color for bad timing feedback.")]
+    public Color badTimingColor = Color.red;
 
     // References
     private Animator animator;
@@ -66,6 +73,9 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; // Freeze rotation to prevent physics wobble
+
+        if (timingFeedbackText)
+            timingFeedbackText.text = ""; // Clear feedback text initially
     }
 
     private void Update()
@@ -139,7 +149,6 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
     }
 
-    // ================= MOVEMENT =================
     private void HandleMovement()
     {
         float h = Input.GetAxis("Horizontal");
@@ -156,7 +165,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ================= AIMING =================
     private void HandleAiming()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -166,6 +174,13 @@ public class PlayerController : MonoBehaviour
             Vector3 targetPoint = hit.point;
             aimDirection = (targetPoint - transform.position).normalized;
             Debug.DrawLine(transform.position, targetPoint, Color.red); // Visualize aiming direction
+        }
+        else
+        {
+            // Fallback: Default to forward direction if the raycast misses
+            aimDirection = transform.forward + Vector3.up * 0.1f; // Slight upward arc for safety
+
+            Debug.LogWarning("Aiming raycast missed the opponent's court! Defaulting to forward.");
         }
     }// ================= SERVICE EVENTS =================
     public void SpawnBallAtLeftHand()
@@ -236,7 +251,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Ball thrown upward (ServicePrep).");
     }
 
-    // ================= TIMING =================
     private float CalculateTiming()
     {
         float randomTiming = Random.value; // Replace with real timing logic
@@ -244,21 +258,35 @@ public class PlayerController : MonoBehaviour
         if (randomTiming > 0.8f) // Perfect timing
         {
             currentTimingFeedback = "Perfect";
+            timingFeedbackText.text = currentTimingFeedback; // Actively use it
+            SetTimingFeedback("Perfect Timing", perfectTimingColor);
             return perfectTimingMultiplier;
         }
         else if (randomTiming > 0.4f) // Normal timing
         {
             currentTimingFeedback = "Normal";
+            timingFeedbackText.text = currentTimingFeedback; // Actively use it
+            SetTimingFeedback("Normal Timing", normalTimingColor);
             return normalTimingMultiplier;
         }
         else // Bad timing
         {
             currentTimingFeedback = "Bad";
+            timingFeedbackText.text = currentTimingFeedback; // Actively use it
+            SetTimingFeedback("Bad Timing", badTimingColor);
             return badTimingMultiplier;
         }
     }
 
-    // ================= SHOT EVENTS =================
+    private void SetTimingFeedback(string feedbackText, Color feedbackColor)
+    {
+        if (timingFeedbackText)
+        {
+            timingFeedbackText.text = feedbackText;
+            timingFeedbackText.color = feedbackColor;
+        }
+    }
+
     public void ApplyServiceHit()
     {
         if (currentBall == null || currentBallRb == null)
@@ -267,8 +295,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector3 serviceDir = aimDirection + Vector3.up * 0.2f;
-        float serviceForce = 35f * CalculateTiming();
+        Vector3 serviceDir = aimDirection + Vector3.up * 0.5f; // Ensure proper arc
+        float serviceForce = 22f * CalculateTiming(); // Adjust force
         currentBallRb.linearVelocity = serviceDir.normalized * serviceForce;
 
         Debug.Log("Service hit applied.");
@@ -282,8 +310,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector3 forehandDir = aimDirection + Vector3.up * 0.1f;
-        float forehandForce = 25f * timingMultiplier;
+        Vector3 forehandDir = aimDirection + Vector3.up * 0.3f; // Arc adjustment
+        float forehandForce = 15f * timingMultiplier;
         currentBallRb.linearVelocity = forehandDir.normalized * forehandForce;
 
         Debug.Log("Forehand hit applied.");
@@ -297,27 +325,10 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector3 backhandDir = aimDirection + Vector3.up * 0.1f;
-        float backhandForce = 25f * timingMultiplier;
+        Vector3 backhandDir = aimDirection + Vector3.up * 0.3f; // Arc adjustment
+        float backhandForce = 14f * timingMultiplier;
         currentBallRb.linearVelocity = backhandDir.normalized * backhandForce;
 
         Debug.Log("Backhand hit applied.");
-    }
-
-    // ================= GIZMOS =================
-    private void OnDrawGizmos()
-    {
-        if (Application.isPlaying)
-        {
-            Color timingColor = Color.yellow;
-
-            if (currentTimingFeedback == "Perfect")
-                timingColor = Color.green;
-            else if (currentTimingFeedback == "Bad")
-                timingColor = Color.red;
-
-            Gizmos.color = timingColor;
-            Gizmos.DrawSphere(transform.position + gizmoOffset, gizmoRadius);
-        }
     }
 }
