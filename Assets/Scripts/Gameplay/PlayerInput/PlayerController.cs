@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 [RequireComponent(typeof(Animator), typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
@@ -11,41 +12,38 @@ public class PlayerController : MonoBehaviour
     [Header("Ball / Left Hand Setup")]
     [Tooltip("Your tennis ball prefab (Rigidbody+SphereCollider).")]
     public GameObject tennisBallPrefab;
-
     [Tooltip("Child transform on the left hand bone for ball spawn/holding.")]
     public Transform leftHandTip;
 
     [Header("Aiming Settings")]
-    [Tooltip("LayerMask for the opponent's court.")]
-    public LayerMask opponentCourtLayer;
-
-    [Tooltip("Max raycast distance for aiming.")]
+    [Tooltip("The plane object used for aiming (its collider must be active).")]
+    public GameObject aimPlane;
+    [Tooltip("Max raycast distance for mouse aiming.")]
     public float maxAimDistance = 50f;
 
     [Header("Timing Settings")]
+    [Tooltip("Distance threshold for perfect timing (ball very close to racquet).")]
+    public float perfectDistanceThreshold = 0.3f;
+    [Tooltip("Distance threshold for normal timing.")]
+    public float normalDistanceThreshold = 0.8f;
     [Tooltip("Force adjustment for perfect timing.")]
     public float perfectTimingMultiplier = 1.2f;
-
     [Tooltip("Force adjustment for normal timing.")]
     public float normalTimingMultiplier = 1f;
-
     [Tooltip("Force adjustment for bad timing.")]
     public float badTimingMultiplier = 0.8f;
 
     [Header("UI Feedback")]
     [Tooltip("UI Text to display timing feedback.")]
     public Text timingFeedbackText;
-
     [Tooltip("Color for perfect timing feedback.")]
     public Color perfectTimingColor = Color.green;
-
     [Tooltip("Color for normal timing feedback.")]
     public Color normalTimingColor = Color.yellow;
-
     [Tooltip("Color for bad timing feedback.")]
     public Color badTimingColor = Color.red;
 
-    // References
+    // Internal references
     private Animator animator;
     private Rigidbody rb;
     private Vector3 inputDir;
@@ -58,8 +56,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 aimDirection = Vector3.forward; // Default hit direction
     private string currentTimingFeedback = "Normal"; // Default timing feedback
 
-    // Animator parameters
-    private static readonly int SpeedParam = Animator.StringToHash("Speed");
+    // Animator parameters (do not change these names)
+    private static readonly int SpeedParamHash = Animator.StringToHash("Speed");
     private static readonly int ServiceBallTapTrigger = Animator.StringToHash("ServiceBallTapTrigger");
     private static readonly int ServicePrepTrigger = Animator.StringToHash("ServicePrepTrigger");
     private static readonly int ServiceSwingTrigger = Animator.StringToHash("ServiceSwingTrigger");
@@ -72,10 +70,10 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; // Freeze rotation to prevent physics wobble
+        rb.freezeRotation = true; // Prevent physics wobble
 
         if (timingFeedbackText)
-            timingFeedbackText.text = ""; // Clear feedback text initially
+            timingFeedbackText.text = "Timing";
     }
 
     private void Update()
@@ -103,8 +101,8 @@ public class PlayerController : MonoBehaviour
                 servePhase = 3;
                 Debug.Log("F Press #3 => ServiceSwing");
                 animator.SetTrigger(ServiceSwingTrigger);
-
                 inputDir = Vector3.zero; // Reset movement input after serve
+                StartCoroutine(CheckShotHit());
             }
             else
             {
@@ -126,6 +124,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool(IsForehandPrepBool, false);
             animator.SetTrigger(ForehandSwingTrigger);
             ApplyForehandHit(CalculateTiming());
+            StartCoroutine(CheckShotHit());
         }
 
         // ============ BACKHAND (Fire2) ============
@@ -140,6 +139,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool(IsBackhandPrepBool, false);
             animator.SetTrigger(BackhandSwingTrigger);
             ApplyBackhandHit(CalculateTiming());
+            StartCoroutine(CheckShotHit());
         }
     }
 
@@ -149,6 +149,7 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
     }
 
+    // ================= MOVEMENT =================
     private void HandleMovement()
     {
         float h = Input.GetAxis("Horizontal");
@@ -156,7 +157,7 @@ public class PlayerController : MonoBehaviour
         inputDir = new Vector3(h, 0f, v).normalized;
 
         float currentSpeed = inputDir.magnitude * moveSpeed;
-        animator.SetFloat(SpeedParam, currentSpeed);
+        animator.SetFloat(SpeedParamHash, currentSpeed);
 
         if (inputDir.sqrMagnitude > 0.01f)
         {
@@ -165,24 +166,75 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // ================= AIMING =================
     private void HandleAiming()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance, opponentCourtLayer))
+        // Use the aim plane instead of a layer mask:
+        if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance))
         {
-            Vector3 targetPoint = hit.point;
-            aimDirection = (targetPoint - transform.position).normalized;
-            Debug.DrawLine(transform.position, targetPoint, Color.red); // Visualize aiming direction
+            if (hit.collider.gameObject == aimPlane)
+            {
+                Vector3 targetPoint = hit.point;
+                aimDirection = (targetPoint - transform.position).normalized;
+                Debug.DrawLine(transform.position, targetPoint, Color.red);
+            }
+            else
+            {
+                // If the raycast hits something else, use a default aim direction
+                aimDirection = (transform.forward + Vector3.up * 0.3f).normalized;
+                Debug.LogWarning("Raycast hit an unexpected object; using default aim direction.");
+            }
         }
         else
         {
-            // Fallback: Default to forward direction if the raycast misses
-            aimDirection = transform.forward + Vector3.up * 0.1f; // Slight upward arc for safety
-
-            Debug.LogWarning("Aiming raycast missed the opponent's court! Defaulting to forward.");
+            // If the raycast misses entirely, default the aim direction
+            aimDirection = (transform.forward + Vector3.up * 0.3f).normalized;
+            Debug.LogWarning("Raycast missed; using default aim direction.");
         }
-    }// ================= SERVICE EVENTS =================
+    }
+
+    // ================= TIMING =================
+    private float CalculateTiming()
+    {
+        if (currentBall == null)
+        {
+            SetTimingFeedback("No Ball", Color.white);
+            return normalTimingMultiplier;
+        }
+
+        // Use the distance between the ball and the left hand tip (racquet position)
+        float distance = Vector3.Distance(currentBall.transform.position, leftHandTip.position);
+
+        if (distance <= perfectDistanceThreshold)
+        {
+            SetTimingFeedback("Perfect Timing", perfectTimingColor);
+            return perfectTimingMultiplier;
+        }
+        else if (distance <= normalDistanceThreshold)
+        {
+            SetTimingFeedback("Normal Timing", normalTimingColor);
+            return normalTimingMultiplier;
+        }
+        else
+        {
+            SetTimingFeedback("Bad Timing", badTimingColor);
+            return badTimingMultiplier;
+        }
+    }
+
+    private void SetTimingFeedback(string feedbackText, Color feedbackColor)
+    {
+        currentTimingFeedback = feedbackText;  // Now it's used to store the current feedback
+        if (timingFeedbackText)
+        {
+            timingFeedbackText.text = feedbackText;
+            timingFeedbackText.color = feedbackColor;
+        }
+    }
+
+    // ================= SERVICE EVENTS =================
     public void SpawnBallAtLeftHand()
     {
         if (ballHasSpawned) return;
@@ -212,7 +264,7 @@ public class PlayerController : MonoBehaviour
         currentBallRb.isKinematic = false;
 
         Vector3 dropDir = Vector3.down;
-        float dropForce = 0.8f;
+        float dropForce = 0.5f; // Force to bounce
         currentBallRb.linearVelocity = dropDir * dropForce;
 
         Debug.Log("Ball dropped and bounced (ServiceBallTap).");
@@ -251,42 +303,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Ball thrown upward (ServicePrep).");
     }
 
-    private float CalculateTiming()
-    {
-        float randomTiming = Random.value; // Replace with real timing logic
-
-        if (randomTiming > 0.8f) // Perfect timing
-        {
-            currentTimingFeedback = "Perfect";
-            timingFeedbackText.text = currentTimingFeedback; // Actively use it
-            SetTimingFeedback("Perfect Timing", perfectTimingColor);
-            return perfectTimingMultiplier;
-        }
-        else if (randomTiming > 0.4f) // Normal timing
-        {
-            currentTimingFeedback = "Normal";
-            timingFeedbackText.text = currentTimingFeedback; // Actively use it
-            SetTimingFeedback("Normal Timing", normalTimingColor);
-            return normalTimingMultiplier;
-        }
-        else // Bad timing
-        {
-            currentTimingFeedback = "Bad";
-            timingFeedbackText.text = currentTimingFeedback; // Actively use it
-            SetTimingFeedback("Bad Timing", badTimingColor);
-            return badTimingMultiplier;
-        }
-    }
-
-    private void SetTimingFeedback(string feedbackText, Color feedbackColor)
-    {
-        if (timingFeedbackText)
-        {
-            timingFeedbackText.text = feedbackText;
-            timingFeedbackText.color = feedbackColor;
-        }
-    }
-
     public void ApplyServiceHit()
     {
         if (currentBall == null || currentBallRb == null)
@@ -295,11 +311,14 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        currentBallRb.isKinematic = false;
+
         Vector3 serviceDir = aimDirection + Vector3.up * 0.5f; // Ensure proper arc
-        float serviceForce = 22f * CalculateTiming(); // Adjust force
+        float serviceForce = 12f * CalculateTiming();
         currentBallRb.linearVelocity = serviceDir.normalized * serviceForce;
 
         Debug.Log("Service hit applied.");
+        StartCoroutine(CheckShotHit());
     }
 
     public void ApplyForehandHit(float timingMultiplier)
@@ -311,10 +330,11 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 forehandDir = aimDirection + Vector3.up * 0.3f; // Arc adjustment
-        float forehandForce = 15f * timingMultiplier;
+        float forehandForce = 10f * timingMultiplier;
         currentBallRb.linearVelocity = forehandDir.normalized * forehandForce;
 
         Debug.Log("Forehand hit applied.");
+        StartCoroutine(CheckShotHit());
     }
 
     public void ApplyBackhandHit(float timingMultiplier)
@@ -326,9 +346,33 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 backhandDir = aimDirection + Vector3.up * 0.3f; // Arc adjustment
-        float backhandForce = 14f * timingMultiplier;
+        float backhandForce = 9f * timingMultiplier;
         currentBallRb.linearVelocity = backhandDir.normalized * backhandForce;
 
         Debug.Log("Backhand hit applied.");
+        StartCoroutine(CheckShotHit());
+    }
+
+    // ================= COLLISION & SHOT CHECK =================
+    private bool shotHitRegistered = false;
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (currentBall != null && collision.gameObject == currentBall)
+        {
+            Debug.Log("Collision detected between racquet and ball.");
+            shotHitRegistered = true;
+        }
+    }
+
+    private IEnumerator CheckShotHit()
+    {
+        shotHitRegistered = false;
+        yield return new WaitForSeconds(1f);
+        if (!shotHitRegistered)
+        {
+            Debug.Log("Shot failed: no collision between racquet and ball. Resetting ball.");
+            ResetBallToLeftHand();
+        }
     }
 }
