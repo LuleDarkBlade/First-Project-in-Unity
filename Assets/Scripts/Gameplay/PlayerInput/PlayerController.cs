@@ -94,15 +94,17 @@ public class PlayerController : MonoBehaviour
             {
                 servePhase = 2;
                 Debug.Log("F Press #2 => ServicePrep");
-                animator.SetTrigger(ServicePrepTrigger);
+				animator.ResetTrigger(ServiceBallTapTrigger);
+				animator.SetTrigger(ServicePrepTrigger);
             }
             else if (servePhase == 2)
             {
                 servePhase = 3;
                 Debug.Log("F Press #3 => ServiceSwing");
-                animator.SetTrigger(ServiceSwingTrigger);
+				animator.ResetTrigger(ServicePrepTrigger);
+				animator.SetTrigger(ServiceSwingTrigger);
                 inputDir = Vector3.zero; // Reset movement input after serve
-                StartCoroutine(CheckShotHit());
+                //StartCoroutine(CheckShotHit());
             }
             else
             {
@@ -270,6 +272,13 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Ball dropped and bounced (ServiceBallTap).");
     }
 
+    public void ResetService()
+    {
+        ResetBallToLeftHand();
+		servePhase = 0;
+        rb.linearVelocity = Vector3.zero;
+	}
+
     public void ResetBallToLeftHand()
     {
         if (currentBall == null || currentBallRb == null) return;
@@ -295,8 +304,11 @@ public class PlayerController : MonoBehaviour
 
         currentBall.transform.SetParent(null);
         currentBallRb.isKinematic = false;
+		currentBallRb.linearVelocity = Vector3.zero;
+		var ball = currentBall.gameObject.GetComponent<Ball>();
+        ball.Player = this;
 
-        Vector3 throwDir = Vector3.up;
+		Vector3 throwDir = Vector3.up;
         float throwForce = 12f;
         currentBallRb.linearVelocity = throwDir * throwForce;
 
@@ -311,15 +323,20 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        currentBallRb.isKinematic = false;
+        var ball = currentBall.gameObject.GetComponent<Ball>();
+        ball.Player = this;
+        ball.ApplyServiceHit(50f); // Force value is arbitrary
+		animator.ResetTrigger(ServiceSwingTrigger);
 
-        Vector3 serviceDir = aimDirection + Vector3.up * 0.5f; // Ensure proper arc
-        float serviceForce = 12f * CalculateTiming();
-        currentBallRb.linearVelocity = serviceDir.normalized * serviceForce;
+		//currentBallRb.isKinematic = false;
 
-        Debug.Log("Service hit applied.");
-        StartCoroutine(CheckShotHit());
-    }
+		//Vector3 serviceDir = aimDirection + Vector3.up * 0.5f; // Ensure proper arc
+		//float serviceForce = 12f * CalculateTiming();
+		//currentBallRb.linearVelocity = serviceDir.normalized * serviceForce;
+
+		//Debug.Log("Service hit applied.");
+		//StartCoroutine(CheckShotHit());
+	}
 
     public void ApplyForehandHit(float timingMultiplier)
     {
