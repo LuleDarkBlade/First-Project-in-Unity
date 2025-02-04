@@ -27,7 +27,12 @@ public class Ball : MonoBehaviour
 				ResetBall(); 
 				Message.ShowMessage("Net!");
 			}
-		}
+            else if (collision.gameObject.CompareTag("FloorInLeft"))
+			{
+                ResetBall();
+                Message.ShowMessage("GreatShot!");
+            }
+        }
 	}
 
 	public void ApplyServiceHit(float force)

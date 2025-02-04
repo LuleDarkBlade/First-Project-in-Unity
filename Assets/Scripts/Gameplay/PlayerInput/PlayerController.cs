@@ -80,6 +80,10 @@ public class PlayerController : MonoBehaviour
     {
         HandleMovement();
         HandleAiming();
+if (Camera.main != null)
+    Debug.Log("Main Camera is: " + Camera.main.name);
+else
+    Debug.LogWarning("No camera tagged MainCamera!");
 
         // ============ SERVICE SEQUENCE ============
         if (Input.GetKeyDown(KeyCode.F))
@@ -172,7 +176,8 @@ public class PlayerController : MonoBehaviour
     private void HandleAiming()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
+        
+        Debug.DrawRay(ray.origin, ray.direction * maxAimDistance, Color.yellow, 5f);
         // Use the aim plane instead of a layer mask:
         if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance))
         {
@@ -180,7 +185,7 @@ public class PlayerController : MonoBehaviour
             {
                 Vector3 targetPoint = hit.point;
                 aimDirection = (targetPoint - transform.position).normalized;
-                Debug.DrawLine(transform.position, targetPoint, Color.red);
+                Debug.DrawLine(transform.position, targetPoint, Color.blue);
             }
             else
             {
@@ -223,6 +228,7 @@ public class PlayerController : MonoBehaviour
         {
             SetTimingFeedback("Bad Timing", badTimingColor);
             return badTimingMultiplier;
+            
         }
     }
 
@@ -325,13 +331,13 @@ public class PlayerController : MonoBehaviour
 
         var ball = currentBall.gameObject.GetComponent<Ball>();
         ball.Player = this;
-        ball.ApplyServiceHit(50f); // Force value is arbitrary
+        ball.ApplyServiceHit(35f); // Force value is arbitrary
 		animator.ResetTrigger(ServiceSwingTrigger);
 
 		//currentBallRb.isKinematic = false;
 
 		//Vector3 serviceDir = aimDirection + Vector3.up * 0.5f; // Ensure proper arc
-		//float serviceForce = 12f * CalculateTiming();
+		//float serviceForce = 20f * CalculateTiming();
 		//currentBallRb.linearVelocity = serviceDir.normalized * serviceForce;
 
 		//Debug.Log("Service hit applied.");
@@ -391,5 +397,24 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Shot failed: no collision between racquet and ball. Resetting ball.");
             ResetBallToLeftHand();
         }
+    }
+    // ================= RESET SERVE CYCLE =================
+    // Call this method via an Animation Event at the end of the ServiceSwing animation.
+    public void ResetServeCycle()
+    {
+        if (currentBall != null)
+        {
+            Destroy(currentBall, 5f);
+            currentBall = null;
+            currentBallRb = null;
+        }
+        servePhase = 0;
+        ballHasSpawned = false;
+        Debug.Log("Serve cycle reset. Ready for next serve.");
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, transform.forward);
     }
 }

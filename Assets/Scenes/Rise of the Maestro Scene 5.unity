@@ -356,7 +356,7 @@ Transform:
   m_GameObject: {fileID: 54917650}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.99, y: 1.26, z: 4.01}
+  m_LocalPosition: {x: 1.99, y: 3.5, z: 4.01}
   m_LocalScale: {x: 0.49358556, y: 0, z: 0.6183544}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -845,6 +845,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 488175128162303425, guid: 0cf344a1fe27dad41b769dc1983951e5, type: 3}
+      propertyPath: m_TagString
+      value: Net
+      objectReference: {fileID: 0}
     - target: {fileID: 791756737743261160, guid: 0cf344a1fe27dad41b769dc1983951e5, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -992,6 +996,10 @@ PrefabInstance:
     - target: {fileID: 5667695093316145464, guid: 0cf344a1fe27dad41b769dc1983951e5, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6032051782356509578, guid: 0cf344a1fe27dad41b769dc1983951e5, type: 3}
+      propertyPath: m_TagString
+      value: Net
       objectReference: {fileID: 0}
     - target: {fileID: 6792686793465995096, guid: 0cf344a1fe27dad41b769dc1983951e5, type: 3}
       propertyPath: m_Enabled
@@ -1223,7 +1231,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -1247,8 +1255,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 19.709309, y: 3, z: 0.012766435}
-  m_Center: {x: -9.850419, y: -1.5000002, z: 0.006383247}
+  m_Size: {x: 19.709309, y: 3.1168437, z: 0.012766435}
+  m_Center: {x: -9.85042, y: -1.4415784, z: 0.006383247}
 --- !u!64 &529901111
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1266,7 +1274,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -1290,8 +1298,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 19.709309, y: 3, z: 0.012766435}
-  m_Center: {x: -9.850417, y: -1.5000002, z: 0.006383128}
+  m_Size: {x: 19.709307, y: 3.0303724, z: 0.012766435}
+  m_Center: {x: -9.850417, y: -1.4848143, z: 0.006383128}
 --- !u!136 &529901116
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1825,10 +1833,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 2129382952}
     m_Modifications:
     - target: {fileID: 1513569345820630881, guid: e03aad5ae54ef2a46b93e8168a20b32a, type: 3}
-      propertyPath: aimPlane
-      value: 
-      objectReference: {fileID: 54917650}
-    - target: {fileID: 1513569345820630881, guid: e03aad5ae54ef2a46b93e8168a20b32a, type: 3}
       propertyPath: moveSpeed
       value: 10
       objectReference: {fileID: 0}
@@ -1931,6 +1935,10 @@ PrefabInstance:
     - target: {fileID: 8226921252078519028, guid: e03aad5ae54ef2a46b93e8168a20b32a, type: 3}
       propertyPath: m_Mass
       value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 8226921252078519028, guid: e03aad5ae54ef2a46b93e8168a20b32a, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2223,8 +2231,8 @@ Transform:
   m_GameObject: {fileID: 1278324246}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.0199997, y: 0, z: 3.82}
-  m_LocalScale: {x: 4.1958475, y: 0, z: 5.978677}
+  m_LocalPosition: {x: -2.0199997, y: 0, z: 3.89}
+  m_LocalScale: {x: 4.1958475, y: 0, z: 6.365497}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1513808678}
@@ -2890,7 +2898,7 @@ Transform:
   m_GameObject: {fileID: 1530636843}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.04, y: 0, z: 9.75}
+  m_LocalPosition: {x: -0.04, y: 0, z: 9.86}
   m_LocalScale: {x: 11.255661, y: 0, z: 5.776717}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3130,7 +3138,7 @@ GameObject:
   - component: {fileID: 1666853786}
   - component: {fileID: 1666853785}
   - component: {fileID: 1666853784}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: PlaneLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3146,7 +3154,7 @@ Transform:
   m_GameObject: {fileID: 1666853782}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.98, y: 1.26, z: 4.01}
+  m_LocalPosition: {x: -1.98, y: 3.5, z: 4.01}
   m_LocalScale: {x: 0.48098683, y: 0, z: 0.62733793}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3673,7 +3681,7 @@ GameObject:
   - component: {fileID: 2005028406}
   m_Layer: 0
   m_Name: FloorOut
-  m_TagString: FloorOut
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
