@@ -30,7 +30,12 @@ public class Ball : MonoBehaviour
             else if (collision.gameObject.CompareTag("FloorInLeft"))
 			{
                 ResetBall();
-                Message.ShowMessage("GreatShot!");
+                Message.ShowMessage("ACE!");
+            }
+            else if (collision.gameObject.CompareTag("FloorInRight"))
+            {
+                ResetBall();
+                Message.ShowMessage("ACE!");
             }
         }
 	}
@@ -63,12 +68,7 @@ public class Ball : MonoBehaviour
 
 	private void ResetBall()
 	{
-		Player.ResetService();
-		rb.linearVelocity = Vector3.zero;
-		rb.isKinematic = true;
-		rb.useGravity = false;
-		trail.enabled = false;
-		served = false;
+		
 	}
 
 	private void Start()

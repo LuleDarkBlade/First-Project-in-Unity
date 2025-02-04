@@ -10,6 +10,8 @@ TagManager:
   - FloorInRight
   - FloorInLeft
   - FloorOut
+  - Racquet
+  - Court
   layers:
   - Default
   - TransparentFX

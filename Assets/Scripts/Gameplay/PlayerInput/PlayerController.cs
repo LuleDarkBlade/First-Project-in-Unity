@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 360f;
+    [SerializeField] private float rotationSpeed = 0f;
 
     [Header("Ball / Left Hand Setup")]
     [Tooltip("Your tennis ball prefab (Rigidbody+SphereCollider).")]
@@ -32,6 +32,12 @@ public class PlayerController : MonoBehaviour
     public float normalTimingMultiplier = 1f;
     [Tooltip("Force adjustment for bad timing.")]
     public float badTimingMultiplier = 0.8f;
+
+    [Header("Sound Settings")]
+    [Tooltip("Sound to play when the racquet hits the ball.")]
+    public AudioClip racquetHitSound;
+    [Tooltip("Sound to play when the ball lands on the court.")]
+    public AudioClip courtHitSound;
 
     [Header("UI Feedback")]
     [Tooltip("UI Text to display timing feedback.")]
@@ -93,6 +99,7 @@ else
                 servePhase = 1;
                 Debug.Log("F Press #1 => ServiceBallTap");
                 animator.SetTrigger(ServiceBallTapTrigger);
+
             }
             else if (servePhase == 1)
             {
@@ -159,8 +166,8 @@ else
     private void HandleMovement()
     {
         float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-        inputDir = new Vector3(h, 0f, v).normalized;
+       
+        inputDir = new Vector3(h, 0f).normalized;
 
         float currentSpeed = inputDir.magnitude * moveSpeed;
         animator.SetFloat(SpeedParamHash, currentSpeed);
@@ -331,7 +338,7 @@ else
 
         var ball = currentBall.gameObject.GetComponent<Ball>();
         ball.Player = this;
-        ball.ApplyServiceHit(35f); // Force value is arbitrary
+        ball.ApplyServiceHit(15f); // Force value is arbitrary
 		animator.ResetTrigger(ServiceSwingTrigger);
 
 		//currentBallRb.isKinematic = false;
@@ -381,13 +388,25 @@ else
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (currentBall != null && collision.gameObject == currentBall)
+        // Check for collisions between the current ball and the player's racquet or the court.
+        // Ensure that your racquet and court objects have appropriate tags ("Racquet" and "Court").
+        if (currentBall != null)
         {
-            Debug.Log("Collision detected between racquet and ball.");
-            shotHitRegistered = true;
+            if (collision.gameObject.CompareTag("Racquet"))
+            {
+                Debug.Log("Racquet hit the ball.");
+                shotHitRegistered = true;
+                // Play racquet hit sound
+                AudioSource.PlayClipAtPoint(racquetHitSound, collision.contacts[0].point);
+            }
+            else if (collision.gameObject.CompareTag("Court"))
+            {
+                Debug.Log("Ball hit the court.");
+                // Play court hit sound
+                AudioSource.PlayClipAtPoint(courtHitSound, collision.contacts[0].point);
+            }
         }
     }
-
     private IEnumerator CheckShotHit()
     {
         shotHitRegistered = false;
