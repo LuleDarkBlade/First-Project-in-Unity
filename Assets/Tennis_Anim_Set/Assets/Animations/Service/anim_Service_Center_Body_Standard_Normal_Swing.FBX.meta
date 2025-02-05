@@ -69,8 +69,22 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
+      - time: 0.33052477
+        functionName: PlayRacquetHitSound
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       - time: 0.9820831
         functionName: ResetServeCycle
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.33034724
+        functionName: PlayGruntSound
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

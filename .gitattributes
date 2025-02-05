@@ -1,0 +1,4 @@
+*.Zen.wav filter=lfs diff=lfs merge=lfs -text
+*.Complete[[:space:]]Zen.wav filter=lfs diff=lfs merge=lfs -text
+*.Complete[[:space:]]Zen.wav.meta filter=lfs diff=lfs merge=lfs -text
+*.Zen.wav.meta filter=lfs diff=lfs merge=lfs -text

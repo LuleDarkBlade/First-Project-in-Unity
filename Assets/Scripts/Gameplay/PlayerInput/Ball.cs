@@ -2,14 +2,20 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-	public TrailRenderer trail;
+    [Header("Audio Settings")]
+    [Tooltip("Sound to play when the ball hits the courtLayer.")]
+    public AudioClip VictoryClip;
+    [Header("Audio Settings")]
+    [Tooltip("Sound to play when the ball hits the courtLayer.")]
+    public AudioClip FailureClip;
+    public TrailRenderer trail;
 	private Rigidbody rb;
 
 	private bool served = false;
 
 	public PlayerController Player { get; set; }
-
-	private void OnCollisionEnter(Collision collision)
+    private AudioSource audioSource;
+    private void OnCollisionEnter(Collision collision)
 	{
 		if (collision.gameObject.layer == LayerMask.NameToLayer("courtLayer"))
 		{
@@ -21,7 +27,9 @@ public class Ball : MonoBehaviour
 			{
 				ResetBall();
 				Message.ShowMessage("Out!");
-			}
+				PlayFailureSound();
+                audioSource.PlayOneShot(FailureClip);
+            }
 			else if (collision.gameObject.CompareTag("Net"))
 			{
 				ResetBall(); 
@@ -31,11 +39,15 @@ public class Ball : MonoBehaviour
 			{
                 ResetBall();
                 Message.ShowMessage("ACE!");
+				PlayVictorySound();
+                audioSource.PlayOneShot(VictoryClip);
             }
             else if (collision.gameObject.CompareTag("FloorInRight"))
             {
                 ResetBall();
                 Message.ShowMessage("ACE!");
+                PlayVictorySound();
+                audioSource.PlayOneShot(VictoryClip);
             }
         }
 	}
@@ -59,8 +71,31 @@ public class Ball : MonoBehaviour
 		served = true;
 		trail.enabled = true;
 	}
-
-	private void OnBallDropped()
+    public void PlayFailureSound()
+    {
+        if (audioSource != null && FailureClip != null)
+        {
+            audioSource.PlayOneShot(FailureClip);
+            Debug.Log("Failure sound played.");
+        }
+        else
+        {
+            Debug.LogWarning("Missing AudioSource or FailureClip!");
+        }
+    }
+    public void PlayVictorySound()
+    {
+        if (audioSource != null && VictoryClip != null)
+        {
+            audioSource.PlayOneShot(VictoryClip);
+            Debug.Log("Victory sound played.");
+        }
+        else
+        {
+            Debug.LogWarning("Missing AudioSource or VictoryClip!");
+        }
+    }
+    private void OnBallDropped()
 	{
 		ResetBall();
 		Message.ShowMessage("Ball Dropped!");
@@ -75,6 +110,7 @@ public class Ball : MonoBehaviour
 	{
 		rb = GetComponent<Rigidbody>();
 		trail.enabled = false;
+		audioSource = GetComponent<AudioSource>(); // Get AudioSource component
 	}
 
 	private void OnDrawGizmos()

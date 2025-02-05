@@ -33,11 +33,14 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Force adjustment for bad timing.")]
     public float badTimingMultiplier = 0.8f;
 
-    [Header("Sound Settings")]
+    [Header("Audio Settings")]
     [Tooltip("Sound to play when the racquet hits the ball.")]
-    public AudioClip racquetHitSound;
+    public AudioClip racquetHitClip;
+    [Tooltip("Sound to play when the racquet hits the ball.")]
+    public AudioClip GruntClip;
     [Tooltip("Sound to play when the ball lands on the court.")]
-    public AudioClip courtHitSound;
+    public AudioClip ballTappingClip;
+
 
     [Header("UI Feedback")]
     [Tooltip("UI Text to display timing feedback.")]
@@ -56,6 +59,8 @@ public class PlayerController : MonoBehaviour
 
     private GameObject currentBall;
     private Rigidbody currentBallRb;
+
+    private AudioSource audioSource;
 
     private int servePhase = 0; // 0 = ready, 1 = ball tap, 2 = prep, 3 = swing
     private bool ballHasSpawned = false; // Ensure ball spawns only once
@@ -77,7 +82,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; // Prevent physics wobble
-
+        audioSource = GetComponent<AudioSource>(); // Get AudioSource component
+       
         if (timingFeedbackText)
             timingFeedbackText.text = "Timing";
     }
@@ -382,7 +388,44 @@ else
         Debug.Log("Backhand hit applied.");
         StartCoroutine(CheckShotHit());
     }
+    // ================= AUDIO EVENTS (for Animation Events) =================
+    public void PlayRacquetHitSound()
+    {
+        if (audioSource != null && racquetHitClip != null)
+        {
+            audioSource.PlayOneShot(racquetHitClip);
+            Debug.Log("Racquet hit sound played.");
+        }
+        else
+        {
+            Debug.LogWarning("Missing AudioSource or racquetHitClip!");
+        }
+    }
+    public void PlayGruntSound()
+    {
+        if (audioSource != null && GruntClip != null)
+        {
+            audioSource.PlayOneShot(GruntClip);
+            Debug.Log("Grunt sound played.");
+        }
+        else
+        {
+            Debug.LogWarning("Missing AudioSource or GruntClip!");
+        }
+    }
 
+    public void PlayBallTappingSound()
+    {
+        if (audioSource != null && ballTappingClip != null)
+        {
+            audioSource.PlayOneShot(ballTappingClip);
+            Debug.Log("Ball tapping sound played.");
+        }
+        else
+        {
+            Debug.LogWarning("Missing AudioSource or ballTappingClip!");
+        }
+    }
     // ================= COLLISION & SHOT CHECK =================
     private bool shotHitRegistered = false;
 
@@ -392,19 +435,12 @@ else
         // Ensure that your racquet and court objects have appropriate tags ("Racquet" and "Court").
         if (currentBall != null)
         {
-            if (collision.gameObject.CompareTag("Racquet"))
+            if (currentBall != null && collision.gameObject == currentBall)
             {
-                Debug.Log("Racquet hit the ball.");
+                Debug.Log("Collision detected between racquet and ball.");
                 shotHitRegistered = true;
-                // Play racquet hit sound
-                AudioSource.PlayClipAtPoint(racquetHitSound, collision.contacts[0].point);
             }
-            else if (collision.gameObject.CompareTag("Court"))
-            {
-                Debug.Log("Ball hit the court.");
-                // Play court hit sound
-                AudioSource.PlayClipAtPoint(courtHitSound, collision.contacts[0].point);
-            }
+            
         }
     }
     private IEnumerator CheckShotHit()

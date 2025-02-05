@@ -97,7 +97,7 @@ PrefabInstance:
       addedObject: {fileID: 8859615817381016965}
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 5d73599abc19b0b419c64ea38df2aeaf, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -265695045502781871}
+      addedObject: {fileID: -2123530906095210643}
   m_SourcePrefab: {fileID: 100100000, guid: 5d73599abc19b0b419c64ea38df2aeaf, type: 3}
 --- !u!1 &6216165611494081211 stripped
 GameObject:
@@ -186,6 +186,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bb7ac889d0fc9b42b2fe3fc2ec7515e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  VictoryClip: {fileID: 8300000, guid: 07368e7916c333841bdd7b76bbbf5e3c, type: 3}
+  FailureClip: {fileID: 8300000, guid: f774c8a336d72c844a01e35fd7b4f905, type: 3}
   trail: {fileID: 8859615817381016965}
 --- !u!96 &8859615817381016965
 TrailRenderer:
@@ -294,7 +296,7 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
---- !u!82 &-265695045502781871
+--- !u!82 &-2123530906095210643
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -304,10 +306,10 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: da3ac65c5c7ee496cb1ce25c83c6942a, type: 3}
-  m_Resource: {fileID: 8300000, guid: da3ac65c5c7ee496cb1ce25c83c6942a, type: 3}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.81
   m_Pitch: 1
   Loop: 0
   Mute: 0
